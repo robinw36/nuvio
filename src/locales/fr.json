@@ -2364,7 +2364,12 @@
     "panel_backdrop_as_all": "Comme partout",
     "head_clock_hint": "{time} affiche l’heure actuelle et {date} la date du jour, mises à jour chaque minute.",
     "head_clock_add": "Ajouter une horloge",
-    "head_clock_add_desc": "Ajoute {time} au sous-titre"
+    "head_clock_add_desc": "Ajoute {time} au sous-titre",
+    "copy": "Copier",
+    "copied_name": "Copié : {name}",
+    "paste_name": "Coller : {name}",
+    "paste_hint": "carte copiée, vérifiez et ajoutez",
+    "copy_hint": "Copiez cette carte pour la coller dans une autre vue, pièce ou conteneur"
   },
   "lookr": {
     "add_fuel": "Ajouter un carburant",

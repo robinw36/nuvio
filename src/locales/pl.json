@@ -2399,7 +2399,12 @@
     "panel_backdrop_as_all": "Jak wszędzie",
     "head_clock_hint": "{time} pokazuje bieżącą godzinę, a {date} dzisiejszą datę; obie odświeżają się co minutę.",
     "head_clock_add": "Dodaj zegar",
-    "head_clock_add_desc": "Dopisuje {time} do podtytułu"
+    "head_clock_add_desc": "Dopisuje {time} do podtytułu",
+    "copy": "Kopiuj",
+    "copied_name": "Skopiowano: {name}",
+    "paste_name": "Wklej: {name}",
+    "paste_hint": "skopiowana karta, sprawdź i dodaj",
+    "copy_hint": "Skopiuj tę kartę, aby wkleić ją w innym widoku, pokoju lub kontenerze"
   },
   "lookr": {
     "add_fuel": "Dodaj paliwo",

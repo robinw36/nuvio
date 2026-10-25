@@ -2329,7 +2329,12 @@
     "panel_backdrop_as_all": "Zoals overal",
     "head_clock_hint": "{time} toont de huidige tijd en {date} de datum van vandaag, allebei elke minuut bijgewerkt.",
     "head_clock_add": "Klok toevoegen",
-    "head_clock_add_desc": "Voegt {time} toe aan de ondertitel"
+    "head_clock_add_desc": "Voegt {time} toe aan de ondertitel",
+    "copy": "Kopiëren",
+    "copied_name": "Gekopieerd: {name}",
+    "paste_name": "Plakken: {name}",
+    "paste_hint": "gekopieerde kaart, controleer en voeg toe",
+    "copy_hint": "Kopieer deze kaart om hem in een andere view, ruimte of container te plakken"
   },
   "lookr": {
     "add_fuel": "Brandstof toevoegen",

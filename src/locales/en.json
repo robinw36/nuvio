@@ -2329,7 +2329,12 @@
     "panel_backdrop_as_all": "As everywhere",
     "head_clock_hint": "{time} shows the current time and {date} today's date, both updated every minute.",
     "head_clock_add": "Add a clock",
-    "head_clock_add_desc": "Adds {time} to the subtitle"
+    "head_clock_add_desc": "Adds {time} to the subtitle",
+    "copy": "Copy",
+    "copied_name": "Copied: {name}",
+    "paste_name": "Paste: {name}",
+    "paste_hint": "copied card, check and add",
+    "copy_hint": "Copy this card to paste it on another view, room or container"
   },
   "lookr": {
     "add_fuel": "Add fuel",

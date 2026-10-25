@@ -578,7 +578,15 @@ const hgKidName = (k) => { const C = HG_COMP.find((c) => c.id === k.nv_comp); re
 const hgKidIcon = (k) => { const C = HG_COMP.find((c) => c.id === k.nv_comp); return k.nv_i || k.icon || (C && C.i) || 'mdi:card-outline'; };
 /* testy i zrzuty (tests/cards-demo.html): lista komponentów i budowanie konfiguracji jak w galerii */
 window.__hgCompT = { list: HG_COMP, card: hgCompCard, cfg: hgCompCfg, kid: hgKidCfg, cands: (h, sl) => hgSlotCands(h, sl) };
-const HG_CM = window.__hgCm || (window.__hgCm = new Map());   /* klucz dodanego komponentu -> { c, cfg } (do montowania w slotach) */
+const HG_CM = window.__hgCm || (window.__hgCm = new Map());
+/* schowek kart (kopiuj / wklej między widokami, pokojami i kontenerami): komponent galerii z ustawieniami, zapamiętany na tym urządzeniu */
+const HG_CLIP_KEY = 'nuvio_clip';
+const hgClip = { get() { if (window.__hgClip !== undefined) return window.__hgClip; let c = null; try { c = JSON.parse(localStorage.getItem(HG_CLIP_KEY) || 'null'); } catch (e) { c = null; }
+    return (window.__hgClip = c && typeof c === 'object' && typeof c.cid === 'string' && HG_COMP.some((C) => C.id === c.cid) ? c : null); },
+  set(c) { window.__hgClip = c; try { localStorage.setItem(HG_CLIP_KEY, JSON.stringify(c)); } catch (e) { /* tryb prywatny: schowek tylko w tej karcie */ } } };
+/* ile poziomów kontenerów wnosi wklejany komponent (stos w stosie = 2); limit HG_CONT_MAX jak przy dodawaniu z galerii */
+const hgClipDepth = (C, v) => { const d = (k) => { const vv = k && (k.nv_v || (Array.isArray(k.cards) ? k : null)); return vv && Array.isArray(vv.cards) ? 1 + Math.max(0, ...vv.cards.map(d)) : (k && hgIsCont(k) ? 1 : 0); };
+  if (C.kids) return 1 + Math.max(0, ...((v && v.cards) || []).map(d)); return C.id === 'hacard' && hgIsCont(hgHaCard(v || {})) ? 1 : 0; };   /* klucz dodanego komponentu -> { c, cfg } (do montowania w slotach) */
 const hgCmHtml = (x, sz) => { HG_CM.set(x.e, { c: x.c, cfg: Object.assign({}, x.cfg, x.n ? { title: x.n, name: x.n } : {}, x.i ? { icon: x.i } : {}) });
   return `<div class="hgtl k-card ${HGL.szc(sz)}" data-hgk="${H.esc(x.e)}"><div class="cmslot" data-cm="${H.esc(x.e)}"></div></div>`; };
 const hgCmSlots = (card) => { const h = card._hass; card._cmM = card._cmM || new Map();
@@ -809,10 +817,13 @@ const HG_COMP_EDIT = {
     const h = this._hass; this._eSheet('cfg'); const S = this._eSheetEl; const sc = scOver || (ct ? (ct.page ? ct.scope + ':tiles' : ct.scope) : (this._pageScope() + ':tiles')); this._eGalSc = sc; this._eGalCt = ct;
     const list0 = HG_COMP.filter(hgCompOk),   /* wszędzie ta sama galeria: widok, pokój i kontener */
       lay = kN >= HG_CONT_MAX ? [] : list0.filter((C) => C.cat === 'layout'), bas = list0.filter((C) => HG_COMP_BASIC.includes(C.id)), rest = list0.filter((C) => !HG_COMP_BASIC.includes(C.id) && C.cat !== 'layout'), list = [...lay, ...bas, ...rest];
+    const clip = hgClip.get(), CC = clip && HG_COMP.find((C) => C.id === clip.cid);
+    const paste = CC && hgCompOk(CC) && kN + hgClipDepth(CC, clip.v) <= HG_CONT_MAX ? `<div class="cq"><button class="hs-r" data-hge="cpaste" style="min-height:48px">${H.icon('mdi:content-paste')}<span class="hs-t"><b>${H.esc(hgT('edit.paste_name', { name: clip.n || ((ce) => (ce && h.states[ce] ? H.name(h, ce) : CC.n))(clip.v && (clip.v.e || clip.v.entity)) }))}</b><small>${H.esc(CC.n)} · ${hgT('edit.paste_hint')}</small></span></button></div>` : '';
     const card = (C) => { const req = C.slots.filter((x) => x.req), miss = req.find((sl) => !hgSlotCands(h, sl).length);
       const dom = miss ? H.lv(miss.l.toLowerCase(), `${miss.dom.join(', ')}${miss.dc ? ' · ' + miss.dc.join(', ') : ''}`) : '';
       return `<button class="${miss ? 'na' : ''}" role="listitem" data-hge="cgo" data-c="${C.id}"${miss ? ` title="${H.esc(hgT('edit.needs_domains', { domains: dom }))}"` : ''}><div class="th" data-th="${C.id}">${hgMockHtml(C.id)}</div><b>${H.icon(C.i)}<span>${H.esc(C.n)}</span></b><small class="cd">${H.esc(C.d)}</small>${miss ? `<small class="cna">${H.icon('mdi:link-variant-off')}<span>${hgT('edit.no_matching_entity')}</span></small><small class="cdom">${H.esc(dom)}</small>` : ''}</button>`; };
     S.innerHTML = `<div class="hge-scrim" data-hge="sheetclose"></div><div class="hge-sheet wide" role="dialog" aria-modal="true" aria-label="${kid ? hgT('edit.add_to_container') : hgT('edit.add_component')}"><style>${HG_STY_CSS}${HG_COMP_CSS}${HG_MOCK_CSS}</style><div class="hs-h"><b>${kid ? hgT('edit.add_to_container') : hgT('edit.add_component')}<small style="margin-left:8px;font-weight:500;opacity:.55;font-size:12px" title="${hgT('edit.loaded_bundle_version')}">v${H.esc(String(HG_BUILD).split('+')[0])}</small></b><button class="hs-x" data-hge="sheetclose" aria-label="${hgT('common.close')}">${H.icon('mdi:close')}</button></div><div class="hs-sc">
+      ${paste}
       ${kid ? '' : `<div class="cq"><button class="hs-r" data-hge="cgent" style="min-height:48px">${H.icon('mdi:magnify')}<span class="hs-t"><b>${hgT('edit.search_entities')}</b><small>${hgT('edit.quickly_add_a_single')}</small></span></button></div>`}
       ${lay.length ? `<h4 class="cgh">${hgT('edit.layout')}<small>${hgT('edit.containers_like_in_ha')}</small></h4><div class="cg" role="list">${lay.map(card).join('')}</div>` : ''}
       ${bas.length ? `<h4 class="cgh">${hgT('edit.basic')}<small>${hgT('edit.general_controls_for_any')}</small></h4><div class="cg" role="list">${bas.map(card).join('')}</div>` : ''}
@@ -861,7 +872,7 @@ const HG_COMP_EDIT = {
         return hgForm.field(l, hgForm.text({ value: val, ph: o.ph, a, num: o.t === 'num' })); }).join('')}
       ${C.tile ? '' : hgForm.more(hgT('edit.advanced_configuration_json'), `<small class="nf-hint">${hgT('edit.any_card_fields_e')}</small>${hgForm.area({ code: 1, rows: 6, ph: '{ }', value: R.v.x ? JSON.stringify(R.v.x, null, 2) : '', a: 'data-x="1"' }).replace('class="nf-area', 'class="hs-js nf-area')}<small class="hs-jse nf-err" hidden>${hgT('edit.invalid_json')}</small>`, !!R.v.x)}
       ${R.kid ? '' : `<div class="hs-fl"><span>${hgT('edit.size')}</span>${hgSzSeg('cz', R.z)}</div>`}${mv}
-      </div><div class="hs-ac"><button class="hs-b2" data-hge="${ed ? 'sheetclose' : 'cback'}">${ed ? hgT('common.cancel') : hgT('common.back')}</button><button class="hs-b" data-hge="cok" ${okReq ? '' : 'disabled'}>${H.icon(ed || (R.kid && R.edit) ? 'mdi:check' : 'mdi:plus')}<span>${ed || (R.kid && R.edit) ? hgT('common.save') : R.kid ? hgT('edit.add_to_container') : hgT('common.add')}</span></button></div></div>`;
+      </div><div class="hs-ac">${ed || (R.kid && R.edit) ? `<button class="hs-b2" data-hge="ccopy" title="${hgT('edit.copy_hint')}" style="margin-right:auto">${H.icon('mdi:content-copy')}<span>${hgT('edit.copy')}</span></button>` : ''}<button class="hs-b2" data-hge="${ed ? 'sheetclose' : 'cback'}">${ed ? hgT('common.cancel') : hgT('common.back')}</button><button class="hs-b" data-hge="cok" ${okReq ? '' : 'disabled'}>${H.icon(ed || (R.kid && R.edit) ? 'mdi:check' : 'mdi:plus')}<span>${ed || (R.kid && R.edit) ? hgT('common.save') : R.kid ? hgT('edit.add_to_container') : hgT('common.add')}</span></button></div></div>`;
     for (const n of S.querySelectorAll('input[name]')) n.addEventListener('input', () => { R[n.name] = n.value.trim(); if (n.name === 'i') { const ic = n.parentElement.querySelector('ha-icon'); if (ic && /^mdi:[a-z0-9-]+$/.test(R.i)) ic.setAttribute('icon', R.i); } this._eCompPv(); });
     for (const n of S.querySelectorAll('[data-o]')) n.addEventListener(n.tagName === 'SELECT' || n.type === 'checkbox' ? 'change' : 'input', () => { R.v = Object.assign({}, R.v, { o: Object.assign({}, R.v.o || {}, { [n.dataset.o]: n.type === 'checkbox' ? n.checked : n.value.trim() }) }); this._eCompPv(); });
     for (const n of S.querySelectorAll('textarea[data-x]')) n.addEventListener('input', () => { const t = n.value.trim(), er = S.querySelector('.hs-jse'), ok = S.querySelector('[data-hge="cok"]'); let x = null, bad = false;
@@ -892,6 +903,10 @@ const HG_COMP_EDIT = {
       [A[i], A[j]] = [A[j], A[i]]; R.v[key] = A; this._eComp(R.cid, R); const nh = this._eSheetEl && this._eSheetEl.querySelector(`.hs-er[data-ak="${CSS.escape(key)}"][data-ai="${j}"] [data-hgdrag]`); if (nh) nh.focus(); }); },
   _eCompAct(a, b) { const R = this._eCompR, h = this._hass;
     if (a[0] === 'k') return this._eKidAct(a, b);
+    if (a === 'ccopy') { const C0 = HG_COMP.find((x) => x.id === R.cid); hgClip.set({ cid: R.cid, v: JSON.parse(JSON.stringify(R.v || {})), t: R.t || '', n: R.n || '', i: R.i || '', z: R.z || 's' }); return this._eToast(hgT('edit.copied_name', { name: R.n || (C0 && C0.n) || '' })); }
+    if (a === 'cpaste') { const c = hgClip.get(), CC = c && HG_COMP.find((x) => x.id === c.cid); if (!CC) return; const ct = this._eGalCt, sc = this._eGalSc, kid = (this._eKidStk || []).length > 0; this._eCompR = null;
+      const st = { cid: CC.id, sc, v: JSON.parse(JSON.stringify(c.v || {})), t: c.t || CC.tile || '', n: c.n || '', i: c.i || '', z: c.z || HG_COMP_Z[CC.id] || 's', ...(kid ? { kid: 1 } : {}) };
+      return this._eGo(() => this._eGallery(ct, sc), () => { this._eComp(CC.id, st); if (!kid) this._eSnapTake(); }); }
     if (a === 'cgent') { const ct = this._eGalCt, sc = this._eGalSc; return this._eGo(() => this._eGallery(ct, sc), () => this._eSheet('add', ct, sc)); }
     if (a === 'cgo') { const ct = this._eGalCt, sc = this._eGalSc; this._eCompR = null; return this._eGo(() => this._eGallery(ct, sc), () => this._eComp(b.dataset.c)); }
     if (a === 'cback') return this._eBack();
@@ -1402,7 +1417,7 @@ const HG_EDIT = {
     if (a === 'lkback') { this._lkDD = 'nav'; const sh = this._eSheetEl && this._eSheetEl.querySelector('.hge-sheet.lk'); if (sh) { sh.dataset.dd = 'nav'; const t = sh.querySelector(`#lkt-${this._lkTab}`); if (t) t.focus(); } return; }
     if (a === 'lookreset') { HGL.data.app = {}; HGApp.apply(); this._eToast(hgT('edit.appearance_reset_to_default')); return this._eLook(); }
     if (a === 'add') { const ct0 = b._ct || (b.closest('.hge-addw') && b.closest('.hge-addw').firstChild._ct); return ct0 && ct0.scope === 'rooms' ? this._eSheet('add', ct0) : this._eGallery(ct0); }
-    if (/^(c(go|gent|back|typ|mod|z|del|slot|ok)|k(add|edit|dup|del|span|move|out))$/.test(a)) return this._eCompAct(a, b);
+    if (/^(c(go|gent|back|typ|mod|z|del|slot|ok|copy|paste)|k(add|edit|dup|del|span|move|out))$/.test(a)) return this._eCompAct(a, b);
     if (a === 'restore') { this._eSet(b.dataset.sc, (L) => { L.hidden = L.hidden.filter((x) => x !== b.dataset.k); }); this._eSheet(false); return this._eRefresh(b.dataset.sc === this._pageScope()); }
     if (a === 'sback') return this._eBack();
     if (a === 'cfstay') { const c = b.closest('.hs-cf'); if (c) c.remove(); return; }
@@ -1425,6 +1440,7 @@ const HG_EDIT = {
       const k2 = R.S.kind === 'added' ? nv : R.k, pg = R.sc === this._pageScope(); const re = () => { const ct = this._eConts().find((c) => c.scope === R.sc); if (ct) setTimeout(() => this._eCfg(ct, k2), 120); };
       const pr = this._eRefresh(pg); if (pr && pr.then) pr.then(re); else requestAnimationFrame(re); return; }
     if (a === 'cfgsave') return this._eCfgSave();
+    if (a === 'cfgcopy') { const c = this._eCfgClip, C = c && HG_COMP.find((x) => x.id === c.cid); if (!C) return; hgClip.set(JSON.parse(JSON.stringify(c))); const e0 = c.v && (c.v.e || c.v.entity); return this._eToast(hgT('edit.copied_name', { name: c.n || (e0 && this._hass.states[e0] ? H.name(this._hass, e0) : C.n) })); }
     if (a === 'cfgz' || a === 'cfgt' || a === 'cfgw') { for (const x of b.parentElement.children) { x.setAttribute('aria-pressed', x === b); x.setAttribute('aria-checked', x === b); } if (a === 'cfgt') { const cp = this._eSheetEl.querySelector('.hs-cap'); if (cp) cp.hidden = b.dataset.t !== 'chart'; this._eCfgPv(); } return; }
     if (a === 'cfgadd') { const n = ((this._eCfgArrGet(this._eCfgR, b.dataset.k)) || []).length; this._eRepl = Object.assign({}, this._eCfgR, { path: b.dataset.k + '.' + n, old: '', add: true, doms: b.dataset.d ? b.dataset.d.split(',') : null, excl: (this._eCfgArrGet(this._eCfgR, b.dataset.k) || []).map((y) => (typeof y === 'string' ? y : y && y.entity)) }); return this._eGo(() => this._eCfgBack(), () => this._eSheet('add', null, this._eCfgR.sc)); }
     if (a === 'cfgsecadd') { const S0 = this._eCfgR.S; this._eRepl = Object.assign({}, this._eCfgR, { secAdd: b.dataset.k, add: true, old: '', doms: HG_SEC_DOMS[b.dataset.k] || null, excl: (S0.ents.find((y) => y.secAdd) || {}).excl || [] }); return this._eGo(() => this._eCfgBack(), () => this._eSheet('add', null, this._eCfgR.sc)); }
@@ -1589,6 +1605,26 @@ const HG_EDIT = {
       return { kind: 'sec', rid, sk, ents: rows, types: [['', hgT('edit.tile_type_default')], ['compact', HG_TYPES.compact], ['minimal', HG_TYPES.minimal]], t: cf.t || '', n: L.names[k] || '', i: cf.i || '', dn: hd ? hd.textContent.replace(/\d+.*$/, '').trim() : k, it }; }
     return { kind: 'sec', ents: ents.slice(0, 12), types: [['', hgT('edit.tile_type_default')], ['compact', HG_TYPES.compact], ['minimal', HG_TYPES.minimal]], t: cf.t || '', n: L.names[k] || '', i: cf.i || '', dn: hd ? hd.textContent.replace(/\d+.*$/, '').trim() : k, it };
   },
+  /* kopiowanie karty bez własnego komponentu (karta widoku, blok pokoju, kafelek): zamiana na komponent galerii, który da się wkleić gdzie indziej */
+  _eClipOf(S0, sc, k, z) { const h = this._hass, ok = (e) => typeof e === 'string' && !!h.states[e], dom = (e) => e.split('.')[0], has = (id) => { const C = HG_COMP.find((c) => c.id === id); return !!C && hgCompOk(C); };
+    const tile = (e) => { const C = HG_COMP.find((c) => c.tile && c.slots[0] && c.slots[0].dom.includes(dom(e))); return C ? { cid: C.id, v: { e } } : null; };
+    const list = (L) => { L = [...new Set(L.filter(ok))]; if (!L.length) return null; if (L.length === 1) return tile(L[0]) || { cid: 'entities', v: { entities: L } };
+      const D = new Set(L.map(dom)); if (D.size === 1 && D.has('camera') && has('cameras')) return { cid: 'cameras', v: { entities: L } }; if (D.size === 1 && D.has('media_player') && has('players')) return { cid: 'players', v: { entities: L } };
+      const E = HG_COMP.find((c) => c.id === 'entities'), M = L.filter((e) => E.slots[0].dom.includes(dom(e))); return M.length ? { cid: 'entities', v: { entities: M } } : null; };
+    /* karta Nuvio z jedną encją (np. klimatyzacja): ten sam komponent galerii; inna karta: „Karta z HA” z jej konfiguracją */
+    const card = (cc) => { const ty = String(cc.type || '').replace(/^custom:/, '').replace(/^(hg|nuvio)-/, ''), ent = cc.entity;
+      const C = ok(ent) && HG_COMP.find((c) => c.card && !c.kids && c.slots.length === 1 && !c.slots[0].multi && c.card.replace(/^(hg|nuvio)-/, '') === ty && c.slots[0].dom.includes(dom(ent)));
+      if (C) return { cid: C.id, v: Object.assign({ [C.slots[0].k]: ent }, cc.title && (C.opts || []).some((q) => q.k === 'title') ? { o: { title: cc.title } } : {}) };
+      return { cid: 'hacard', v: { o: { src: JSON.stringify(cc, null, 2) } } }; };
+    let c = null;
+    if (S0.kind === 'added') { const x = S0.x, C = x.comp && HG_COMP.find((y) => y.id === x.comp && y.tile); c = C ? { cid: C.id, v: { e: x.e } } : tile(x.e); if (c && x.t) c.t = x.t; }
+    else if (S0.kind === 'room') { if (S0.a && S0.a.id) c = { cid: 'room', v: { o: { room: S0.a.id } } }; }
+    else if (S0.kind === 'card') { const cc = hgCardClean(hgFromHA(hgSetMerge(S0.cc, (HGL.get(sc).conf[k] || {}).set))); if (cc && cc.type) c = card(cc); }
+    else if (S0.kind === 'sec') { const it = S0.it, ac = it && it.querySelector('.acslot[data-ac]'), cam = it && it.querySelector('.camslot[data-cam]');
+      if (ac && ok(ac.dataset.ac) && has('ac')) c = { cid: 'ac', v: { entity: ac.dataset.ac } }; else if (cam && ok(cam.dataset.cam)) c = { cid: 'cam1', v: { e: cam.dataset.cam } };
+      else c = list(S0.ents.map((y) => y.v)); }
+    if (!c || !has(c.cid)) return null;
+    return { cid: c.cid, v: c.v, t: c.t || '', n: S0.n || (S0.kind === 'sec' && c.v.entities && S0.dn && S0.dn !== k ? S0.dn : ''),   /* nazwa sekcji tylko dla listy, nie dla pojedynczego kafelka */ i: /^mdi:[a-z0-9-]+$/.test(S0.i || '') ? S0.i : '', z: z || 's' }; },
   _eCfg(ct, k, kp) { this._eStk = []; this._eKidStk = []; if (!this._eBacking) this._eSnapTake();
     { const L0 = HGL.get(ct.scope); if (hgDedupConf(JSON.parse(JSON.stringify(L0)))) this._eSet(ct.scope, (L) => { hgDedupConf(L); }); }
     /* kontener jak w HA: najpierw jego ustawienia (lista kart: dodaj, usuń, kolejność), kp = ścieżka klikniętej karty w środku, od razu jej formularz */
@@ -1605,7 +1641,7 @@ const HG_EDIT = {
         for (const q of C.opts || []) { const v = q.k === 'flat' ? cc.glass === false : q.k === 'nodiv' ? cc.divider === false : cc[q.k]; if (v != null && v !== '' && v !== false) o[q.k] = Array.isArray(v) ? v.join(', ') : v; }
         this._eGalSc = ct.scope; this._eGalCt = ct; this._eComp(cid, { cid, sc: ct.scope, pageK: k, v: { cards: JSON.parse(JSON.stringify(cc.cards || [])), o }, t: '', n: cf0.n || '', i: cf0.i || '', z: L0.size[k] || this._eBaseZ(ct.scope, k) }); return kids(); } }
     const h = this._hass, sc = ct.scope, L = HGL.get(sc), z = L.size[k] || this._eBaseZ(sc, k), canSz = ct.page ? !this._config.panel.areas : ct.sz;
-    const S0 = this._eSubj(ct, k); this._eCfgR = { sc, k, ct, S: S0 }; this._eSheet('cfg');
+    const S0 = this._eSubj(ct, k); this._eCfgR = { sc, k, ct, S: S0 }; this._eCfgClip = this._eClipOf(S0, sc, k, z); this._eSheet('cfg');
     const S = this._eSheetEl, ttl = { added: hgT('edit.tile_settings'), card: hgT('edit.card_settings'), room: hgT('edit.room_settings'), sec: hgT('edit.section_settings') }[S0.kind]; requestAnimationFrame(() => this._eEntDrag());
     const ico = (v) => (h.states[v] && h.states[v].attributes.icon) || HG_DOM_ICON2[String(v).split('.')[0]] || 'mdi:circle-outline';
     S.innerHTML = `<div class="hge-scrim" data-hge="sheetclose"></div><div class="hge-sheet wide" role="dialog" aria-modal="true" aria-label="${ttl}"><style>${HG_STY_CSS}</style><div class="hs-h"><b>${ttl}</b><button class="hs-x" data-hge="sheetclose" aria-label="${hgT('common.close')}">${H.icon('mdi:close')}</button></div>
@@ -1621,7 +1657,7 @@ const HG_EDIT = {
         return `<div class="hs-fl"><span>${hgT('edit.width')}</span><div class="hs-f wrap" role="radiogroup" aria-label="${hgT('edit.width')}">${[['', hgT('edit.width_automatic'), null], ['full', hgT('edit.full_width'), 1], ['half', hgT('edit.half'), 0]].map(([v, l, f]) => `<button data-hge="cfgw" data-w="${v}" role="radio" aria-pressed="${w0 === v}" aria-checked="${w0 === v}" style="gap:8px">${f == null ? '' : box(f)}${l}</button>`).join('')}</div><small style="opacity:.6;font-size:12px">${hgT('edit.on_phones_every_section')}</small></div>`; })() : ''}
       ${canSz ? `<div class="hs-fl"><span>${hgT('edit.size')}</span>${hgSzSeg('cfgz', z)}</div>` : ''}
       </div>
-      <div class="hs-ac"><button class="hs-b2" data-hge="sheetclose">${hgT('common.cancel')}</button><button class="hs-b" data-hge="cfgsave">${hgT('common.save')}</button></div></div>`;
+      <div class="hs-ac">${this._eCfgClip ? `<button class="hs-b2" data-hge="cfgcopy" title="${hgT('edit.copy_hint')}" style="margin-right:auto">${H.icon('mdi:content-copy')}<span>${hgT('edit.copy')}</span></button>` : ''}<button class="hs-b2" data-hge="sheetclose">${hgT('common.cancel')}</button><button class="hs-b" data-hge="cfgsave">${hgT('common.save')}</button></div></div>`;
     for (const n of S.querySelectorAll('input[name]')) n.addEventListener('input', () => { if (n.name === 'i') { const ic = n.parentElement.querySelector('ha-icon'); if (ic && /^mdi:[a-z0-9-]+$/.test(n.value.trim())) ic.setAttribute('icon', n.value.trim()); } this._eCfgPv(); }); hgIcWire(S); const ckc = S.querySelector('[data-hge=cfgcapoff]'); if (ckc) ckc.addEventListener('change', () => this._eCfgPv());
     this._eCfgPv();
   },
