@@ -2136,7 +2136,8 @@
       "title_with_name": "Titre ({name} = prénom)",
       "unit": "Unité",
       "warning_threshold": "Seuil d’avertissement",
-      "width_ratio": "Proportions de largeur (ex. 2, 1)"
+      "width_ratio": "Proportions de largeur (ex. 2, 1)",
+      "hide_mode_buttons": "Masquer les boutons marche et modes"
     },
     "order_changed": "Ordre modifié",
     "panel_width": "Largeur du panneau",

@@ -2101,7 +2101,8 @@
       "title_with_name": "Title ({name} = first name)",
       "unit": "Unit",
       "warning_threshold": "Warning threshold",
-      "width_ratio": "Width ratio (e.g. 2, 1)"
+      "width_ratio": "Width ratio (e.g. 2, 1)",
+      "hide_mode_buttons": "Hide power and mode buttons"
     },
     "order_changed": "Order changed",
     "panel_width": "Panel width",

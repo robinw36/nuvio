@@ -311,7 +311,7 @@ All of these are in **+ Add** in edit mode, with a preview, a full settings form
 | Hot water | `custom:nuvio-cwu-card` | water heater, heating state, power, time to heat, consumption, keep temperature, switches |
 | Stairs | `custom:nuvio-stairs-card` | bottom and top light and motion sensor, light group, sequence automation |
 | Fuel prices | `custom:nuvio-fuel-card` | price sensors with labels and an optional tomorrow change sensor |
-| Air conditioning (card) | `custom:nuvio-ac-card` | climate entity, title |
+| Air conditioning (card) | `custom:nuvio-ac-card` | climate entity, title, `hide_modes` (no power and mode buttons, e.g. when a Select card with your own modes sits below it) |
 | AC remote | `custom:nuvio-acremote-card` | climate entity, title |
 | Energy week | `custom:nuvio-week-card` | consumption and production sensors, days, tap target |
 | Phases | `custom:nuvio-phases-card` | power, voltage and current per phase, maximum total and per phase power |

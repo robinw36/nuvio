@@ -2101,7 +2101,8 @@
       "title_with_name": "Titel ({name} = voornaam)",
       "unit": "Eenheid",
       "warning_threshold": "Waarschuwingsdrempel",
-      "width_ratio": "Breedteverhouding (bijv. 2, 1)"
+      "width_ratio": "Breedteverhouding (bijv. 2, 1)",
+      "hide_mode_buttons": "Knoppen aan/uit en modi verbergen"
     },
     "order_changed": "Volgorde gewijzigd",
     "panel_width": "Paneelbreedte",

@@ -367,7 +367,7 @@ const HG_COMP = [
   hgTO({ id: 'map', i: 'mdi:map-outline', card: 'hg-map-card', slots: [hgTO({ k: 'entities', dom: ['person', 'device_tracker', 'zone'], loc: 1, multi: 1, req: 1 }, { l: 'edit.people_devices_zones' })],
     cfg: (v) => ({ entities: v.entities, theme_mode: 'auto', hours_to_show: 0 }) }, { n: 'common.map', d: 'edit.people_devices_and_zones' }),
   /* --- karty z Home Glass (pełna konfiguracja: sloty, opcje i JSON zaawansowany) --- */
-  hgTO({ id: 'ac', i: 'mdi:air-conditioner', card: 'hg-ac-card', slots: [hgTO({ k: 'entity', dom: ['climate'], req: 1 }, { l: 'edit.ac_thermostat' })], opts: [{ k: 'title', l: hgTLazy('edit.options.title') }],
+  hgTO({ id: 'ac', i: 'mdi:air-conditioner', card: 'hg-ac-card', slots: [hgTO({ k: 'entity', dom: ['climate'], req: 1 }, { l: 'edit.ac_thermostat' })], opts: [{ k: 'title', l: hgTLazy('edit.options.title') }, { k: 'hide_modes', t: 'bool', l: hgTLazy('edit.options.hide_mode_buttons') }],
     cfg: (v) => ({ entity: v.entity }) }, { n: 'edit.air_conditioning_card', d: 'edit.large_card_temperature_modes' }),
   hgTO({ id: 'acremote', i: 'mdi:remote', card: 'hg-acremote-card', slots: [hgTO({ k: 'entity', dom: ['climate'], req: 1 }, { l: 'edit.air_conditioner' })], opts: [{ k: 'title', l: hgTLazy('edit.options.title') }],
     cfg: (v) => ({ entity: v.entity }) }, { n: 'edit.ac_remote', d: 'edit.live_airflow_setpoint_mode' }),

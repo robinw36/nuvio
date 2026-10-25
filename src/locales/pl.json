@@ -2171,7 +2171,8 @@
       "title_with_name": "Tytuł ({name} = imię)",
       "unit": "Jednostka",
       "warning_threshold": "Próg ostrzeżenia",
-      "width_ratio": "Proporcje szerokości (np. 2, 1)"
+      "width_ratio": "Proporcje szerokości (np. 2, 1)",
+      "hide_mode_buttons": "Ukryj przyciski zasilania i trybów"
     },
     "order_changed": "Zmieniono kolejność",
     "panel_width": "Szerokość panelu",

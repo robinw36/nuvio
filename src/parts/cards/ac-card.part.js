@@ -4,7 +4,7 @@ const hgSwingL = (k) => hgTD('cards.ac.swing_modes.' + k, null);
 /* Klimatyzacja w stylu aplikacji Tesla: duża temperatura z chevronami, pasek temperatury (przeciągany), rząd dużych przycisków trybów */
 class HGACCard extends HGBase {
   defaults() {
-    return { title: hgT('common.air_conditioning'), compact: false,
+    return { title: hgT('common.air_conditioning'), compact: false, hide_modes: false,
       modes: [{ mode: 'heat_cool', label: hgT('cards.ac.mode_auto') }, { mode: 'auto', label: hgT('cards.ac.mode_auto') }, { mode: 'cool', label: hgT('common.cooling'), short: hgT('cards.ac.cool') }, { mode: 'heat', label: hgT('common.heating') },
         { mode: 'dry', label: hgT('cards.ac.drying'), short: hgT('cards.ac.dry') }, { mode: 'fan_only', label: hgT('cards.ac.fan') }],
       compact_modes: ['cool', 'heat', 'fan_only', 'heat_cool', 'auto'], room_label: hgT('cards.ac.indoor') };
@@ -133,13 +133,13 @@ ha-card.glass > *{ flex-shrink:0; }
     if (c.compact) {
       const sub = [this._stat(st, t, s), cur != null ? hgT('cards.ac.indoor_temp', { temp: H.fmt(cur) }) : ''].filter(Boolean).join(' · ');
       return `<ha-card class="${cls}" style="${sty}"><div class="c1"><div class="nm"><b>${H.esc(c.title)}</b><span>${H.esc(sub)}</span></div>${tr}</div>
-        ${bar}<div class="mw"><div class="c2"><div class="mm">${pw}${actB}${xb}</div>${kb}</div>${xp(`<div class="mm mx">${modes.map(mb).join('')}${fan}${swb}</div>`)}</div></ha-card>`;
+        ${bar}<div class="mw">${c.hide_modes ? `<div class="c2" style="justify-content:flex-end">${kb}</div>` : `<div class="c2"><div class="mm">${pw}${actB}${xb}</div>${kb}</div>${xp(`<div class="mm mx">${modes.map(mb).join('')}${fan}${swb}</div>`)}`}</div></ha-card>`;
     }
     const room = this._room();
     return `<ha-card class="${cls}" style="${sty}"><div class="hd"><span class="tt">${H.esc(c.title)}${room ? ` <span>· ${H.esc(room)}</span>` : ''}</span><span class="sp"></span>${kb}</div>
       <div class="temp">${cur != null ? `<div class="lab">${H.esc(c.room_label)} ${H.fmt(cur)}°</div>` : ''}${tr}<div class="st" role="status">${H.esc(this._stat(st, t, s))}</div></div>
       <div class="bw"><small>${H.fmt(mn)}°</small>${bar}<small>${H.fmt(mx)}°</small></div>
-      <div class="mw"><div class="mr top">${pw}${actB}${fan ? fan.replace('class="mb"', 'class="mb fanc"') : ''}${xb}</div>${xp(`<div class="mr">${modes.map(mb).join('')}${fan}${swb}</div>`)}</div></ha-card>`;
+      ${c.hide_modes ? '' : `<div class="mw"><div class="mr top">${pw}${actB}${fan ? fan.replace('class="mb"', 'class="mb fanc"') : ''}${xb}</div>${xp(`<div class="mr">${modes.map(mb).join('')}${fan}${swb}</div>`)}</div>`}</ha-card>`;   /* hide_modes: bez wiersza zasilania i trybów (np. tryby z własnego input_select obok) */
   }
   /* zmiana nastawy w miejscu (bez przerysowania pod palcem), zatwierdzenie z opóźnieniem */
   _setT(v, commitMs) {
