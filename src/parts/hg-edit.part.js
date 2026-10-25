@@ -227,7 +227,7 @@ const hgTileHtml = (h, e, sz, o) => {
 /* wybór ikony: pole tekstowe mdi:xxx (wpisywanie dowolne) + szklany panel z wyszukiwaniem, siatką ikon MDI z listy HA, ostatnimi i obsługą klawiatury */
 let hgIcList = null; const hgIcLoad = () => (hgIcList = hgIcList || fetch('/static/mdi/iconList.json').then((r) => (r.ok ? r.json() : [])).catch(() => []));
 const hgIcRecent = () => { try { return JSON.parse(localStorage.getItem('nuvio:icons') || '[]').filter((x) => /^mdi:[a-z0-9-]+$/.test(x)).slice(0, 12); } catch (e) { return []; } };
-const hgIcWire = (S) => { const inp = S && S.querySelector('.hge-sheet input[name=i]'); if (!inp || inp._icw) return; inp._icw = 1;
+const hgIcWire = (S, inp0) => { const inp = inp0 || (S && S.querySelector('.hge-sheet input[name=i]')); if (!inp || inp._icw) return; inp._icw = 1;
   const box = inp.closest('.hs-s'), fl = inp.closest('.hs-fl'); fl.classList.add('hs-ipw'); const pv = box.querySelector('ha-icon');
   const ob = document.createElement('button'); ob.type = 'button'; ob.className = 'hs-ipb'; ob.setAttribute('aria-haspopup', 'dialog'); ob.setAttribute('aria-expanded', 'false'); ob.setAttribute('aria-label', hgT('edit.choose_icon')); ob.innerHTML = H.icon('mdi:chevron-down'); box.appendChild(ob);
   box.style.cursor = 'pointer'; box.addEventListener('click', (e) => { if (e.target.closest('.hs-ipb')) return; e.preventDefault(); if (!pop) open(); });
@@ -245,7 +245,7 @@ const hgIcWire = (S) => { const inp = S && S.querySelector('.hge-sheet input[nam
     const rc = hgIcRecent();
     pop.innerHTML = `<label class="hs-s">${H.icon('mdi:magnify')}<input type="search" placeholder="${hgT('edit.search_icons_e_g')}" aria-label="${hgT('edit.search_icons')}" autocomplete="off"></label>${rc.length ? `<small>${hgT('edit.recent')}</small><div class="hs-ipg rc" role="listbox">${btns(rc)}</div>` : ''}<small class="hs-ipl">${hgT('edit.all_icons')}</small><div class="hs-ipg all" role="listbox" aria-busy="true">${'<i class="hs-ipk"></i>'.repeat(24)}</div>`;
     fl.appendChild(pop); const r = pop.getBoundingClientRect(), sc = fl.closest('.hs-sc'), sr = sc && sc.getBoundingClientRect(); if (sr && r.bottom > sr.bottom && r.top - sr.top > r.height + 60) pop.classList.add('up'); else if (sc && r.bottom > sr.bottom) sc.scrollTop += r.bottom - sr.bottom + 8;
-    tok = {}; hgsOpen.add(tok); ob.setAttribute('aria-expanded', 'true'); document.addEventListener('pointerdown', out, true);
+    tok = () => { if (!fl.isConnected) close(); }; hgsOpen.add(tok);   /* hgsOpen woła wpisy przy każdej zmianie DOM: funkcja (nie obiekt), zamyka panel po zniknięciu pola */ ob.setAttribute('aria-expanded', 'true'); document.addEventListener('pointerdown', out, true);
     const q = pop.querySelector('input'); q.addEventListener('input', () => fill(q.value)); q.focus({ preventScroll: true }); fill(/^mdi:/.test(cur()) ? '' : cur());
     pop.addEventListener('click', (e) => { const b = e.target.closest('[data-ic]'); if (b) { e.preventDefault(); e.stopPropagation(); pick(b.dataset.ic); } });
     pop.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); ob.focus(); return; }
@@ -359,7 +359,9 @@ const HG_COMP = [
     slots: [hgTO({ k: 'e', dom: ['script', 'scene', 'button', 'input_button', 'automation', 'lock', 'switch'], req: 1 }, { l: 'edit.entity' })], cfg: (v) => ({ entity: v.e, mode: v.mode || 'tile' }) }, { n: 'edit.button', d: 'edit.script_scene_button_press' }),
   hgTO({ id: 'entities', i: 'mdi:format-list-checks', card: 'hg-entities-card',
     slots: [hgTO({ k: 'entities', dom: ['light', 'switch', 'fan', 'input_boolean', 'siren', 'humidifier', 'sensor', 'binary_sensor', 'script', 'scene', 'button', 'input_button', 'lock', 'cover', 'climate', 'media_player', 'person'], pref: ['light', 'switch', 'fan', 'input_boolean'], multi: 1, req: 1 }, { l: 'edit.entities' })], cfg: (v) => ({ entities: v.entities }) }, { n: 'edit.entity_list', d: 'edit.rows_with_a_toggle' }),
-  hgTO({ id: 'select', i: 'mdi:form-dropdown', card: 'hg-select-card', modes: [['chips', hgTLazy('edit.modes.buttons'), 'mdi:dots-horizontal'], ['list', hgTLazy('edit.modes.list'), 'mdi:format-list-bulleted']],
+  hgTO({ id: 'select', i: 'mdi:form-dropdown', card: 'hg-select-card', modes: [['chips', hgTLazy('edit.modes.buttons'), 'mdi:dots-horizontal'], ['list', hgTLazy('edit.modes.list'), 'mdi:format-list-bulleted'], ['icons', hgTLazy('edit.modes.icons_only'), 'mdi:shape-outline']],
+    opts: [{ k: 'subtitle', l: hgTLazy('edit.options.subtitle'), ph: hgTLazy('edit.options.subtitle_current_option') }, { k: 'hide_name', t: 'bool', l: hgTLazy('edit.options.hide_title') }, { k: 'hide_state', t: 'bool', l: hgTLazy('edit.options.hide_subtitle') },
+      { k: 'icons', t: 'opticons', slot: 'e', l: hgTLazy('edit.options.icon_per_option') }],
     slots: [hgTO({ k: 'e', dom: ['input_select', 'select'], req: 1 }, { l: 'edit.entity' })], cfg: (v) => ({ entity: v.e, mode: v.mode || 'chips' }) }, { n: 'edit.select', d: 'edit.input_select_and_select' }),
   hgTO({ id: 'stepper', i: 'mdi:plus-minus-variant', card: 'hg-stepper-card',
     slots: [hgTO({ k: 'e', dom: ['counter', 'input_number', 'number'], req: 1 }, { l: 'edit.entity' })], cfg: (v) => ({ entity: v.e }) }, { n: 'edit.stepper', d: 'edit.plus_and_minus_for' }),
@@ -522,7 +524,7 @@ const hgPwPick = (cur, hge, extra = '') => `<div class="hg-pw" role="radiogroup"
 const hgPwMark = (b) => { for (const x of b.parentElement.querySelectorAll('[role=radio]')) x.setAttribute('aria-checked', String(x === b)); };
 window.hgPwPick = hgPwPick; window.hgPwMark = hgPwMark; window.HG_PW_CSS = HG_PW_CSS;
 /* pełna konfiguracja komponentu: sloty → cfg(), pola opcji (v.o) i JSON zaawansowany (v.x, nadpisuje wszystko) */
-const hgOptVal = (o, val) => (val == null || val === '' ? undefined : o.t === 'num' ? (isFinite(+String(val).trim().replace(',', '.')) && String(val).trim() !== '' ? +String(val).trim().replace(',', '.') : undefined) : o.t === 'bool' ? !!val : o.t === 'nav' ? (/^https?:/.test(val) ? { url: val } : { navigate: val }) : o.t === 'list' ? String(val).split(',').map((x) => x.trim()).filter(Boolean) : val);
+const hgOptVal = (o, val) => (val == null || val === '' ? undefined : o.t === 'opticons' ? (val && typeof val === 'object' && Object.keys(val).length ? val : undefined) : o.t === 'num' ? (isFinite(+String(val).trim().replace(',', '.')) && String(val).trim() !== '' ? +String(val).trim().replace(',', '.') : undefined) : o.t === 'bool' ? !!val : o.t === 'nav' ? (/^https?:/.test(val) ? { url: val } : { navigate: val }) : o.t === 'list' ? String(val).split(',').map((x) => x.trim()).filter(Boolean) : val);
 const hgCompCfg = (C, v, h) => { v = v || {}; const b = C.cfg ? C.cfg(v, h) : {}, O = v.o || {};
   for (const o of C.opts || []) { const x = hgOptVal(o, O[o.k]); if (x !== undefined) b[o.k] = x; }
   return Object.assign(b, v.x && typeof v.x === 'object' ? v.x : {}); };
@@ -858,11 +860,18 @@ const HG_COMP_EDIT = {
         if (o.t === 'sel') return hgForm.field(l, hgForm.select(typeof o.choices === 'function' ? o.choices() : (o.choices || []), val, a));
         if (o.t === 'txt') return hgForm.field(l, hgForm.area({ value: val, ph: o.ph, a, code: !!o.code }));
         if (o.t === 'bool') return hgForm.toggle(l, !!val, a);
+        /* ikona dla każdej opcji encji (input_select nie ma ikon w HA): zapis w karcie, puste = propozycja albo tekst */
+        if (o.t === 'opticons') { const st = h.states[R.v[o.slot]], ops = (st && st.attributes.options) || [], M = val && typeof val === 'object' ? val : {}; if (!ops.length) return '';
+          return `<div class="hs-fl hs-oiw"><span>${H.esc(l)}</span><small class="nf-hint">${hgT('edit.options.icon_per_option_hint')}</small></div>` + ops.map((op) => { const g = typeof hgSelGuess === 'function' ? hgSelGuess(op) : null, cur = typeof M[op] === 'string' ? M[op] : '';
+            return `<label class="hs-fl hs-oi"><span>${H.esc(op)}</span><span class="hs-s">${H.icon(cur || g || 'mdi:shape-outline')}<input class="hs-in" data-oi="${H.esc(o.k)}" data-op="${H.esc(op)}" value="${H.esc(cur)}" placeholder="${H.esc(g || 'mdi:…')}" autocomplete="off"></span></label>`; }).join(''); }
         return hgForm.field(l, hgForm.text({ value: val, ph: o.ph, a, num: o.t === 'num' })); }).join('')}
       ${C.tile ? '' : hgForm.more(hgT('edit.advanced_configuration_json'), `<small class="nf-hint">${hgT('edit.any_card_fields_e')}</small>${hgForm.area({ code: 1, rows: 6, ph: '{ }', value: R.v.x ? JSON.stringify(R.v.x, null, 2) : '', a: 'data-x="1"' }).replace('class="nf-area', 'class="hs-js nf-area')}<small class="hs-jse nf-err" hidden>${hgT('edit.invalid_json')}</small>`, !!R.v.x)}
       ${R.kid ? '' : `<div class="hs-fl"><span>${hgT('edit.size')}</span>${hgSzSeg('cz', R.z)}</div>`}${mv}
       </div><div class="hs-ac"><button class="hs-b2" data-hge="${ed ? 'sheetclose' : 'cback'}">${ed ? hgT('common.cancel') : hgT('common.back')}</button><button class="hs-b" data-hge="cok" ${okReq ? '' : 'disabled'}>${H.icon(ed || (R.kid && R.edit) ? 'mdi:check' : 'mdi:plus')}<span>${ed || (R.kid && R.edit) ? hgT('common.save') : R.kid ? hgT('edit.add_to_container') : hgT('common.add')}</span></button></div></div>`;
     for (const n of S.querySelectorAll('input[name]')) n.addEventListener('input', () => { R[n.name] = n.value.trim(); if (n.name === 'i') { const ic = n.parentElement.querySelector('ha-icon'); if (ic && /^mdi:[a-z0-9-]+$/.test(R.i)) ic.setAttribute('icon', R.i); } this._eCompPv(); });
+    for (const n of S.querySelectorAll('input[data-oi]')) { hgIcWire(S, n); n.addEventListener('input', () => { const k = n.dataset.oi, op = n.dataset.op, v = n.value.trim(), M = Object.assign({}, (R.v.o || {})[k] || {});
+      if (/^mdi:[a-z0-9-]+$/.test(v)) M[op] = v; else delete M[op]; const ic = n.parentElement.querySelector('ha-icon'); if (ic) ic.setAttribute('icon', M[op] || n.placeholder.replace(/^mdi:…$/, 'mdi:shape-outline'));
+      R.v = Object.assign({}, R.v, { o: Object.assign({}, R.v.o || {}, { [k]: M }) }); this._eCompPv(); }); }
     for (const n of S.querySelectorAll('[data-o]')) n.addEventListener(n.tagName === 'SELECT' || n.type === 'checkbox' ? 'change' : 'input', () => { R.v = Object.assign({}, R.v, { o: Object.assign({}, R.v.o || {}, { [n.dataset.o]: n.type === 'checkbox' ? n.checked : n.value.trim() }) }); this._eCompPv(); });
     for (const n of S.querySelectorAll('textarea[data-x]')) n.addEventListener('input', () => { const t = n.value.trim(), er = S.querySelector('.hs-jse'), ok = S.querySelector('[data-hge="cok"]'); let x = null, bad = false;
       if (t) try { x = JSON.parse(t); if (!x || typeof x !== 'object' || Array.isArray(x)) bad = true; } catch (e) { bad = true; }

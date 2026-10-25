@@ -1985,7 +1985,8 @@
       "row": "Rij",
       "tile": "Tegel",
       "vertical": "Verticaal",
-      "wi_fi": "Wifi"
+      "wi_fi": "Wifi",
+      "icons_only": "Alleen pictogrammen"
     },
     "monstera_water_me": "Monstera · water geven",
     "motion_below_going_up": "beweging beneden · naar boven",
@@ -2101,7 +2102,12 @@
       "title_with_name": "Titel ({name} = voornaam)",
       "unit": "Eenheid",
       "warning_threshold": "Waarschuwingsdrempel",
-      "width_ratio": "Breedteverhouding (bijv. 2, 1)"
+      "width_ratio": "Breedteverhouding (bijv. 2, 1)",
+      "subtitle_current_option": "Huidige optie",
+      "hide_title": "Titel verbergen",
+      "hide_subtitle": "Subtitel verbergen",
+      "icon_per_option": "Pictogram per optie",
+      "icon_per_option_hint": "Home Assistant heeft geen pictogrammen voor deze opties, daarom worden ze in deze kaart bewaard. Leeg: in Alleen pictogrammen een voorstel of de tekst."
     },
     "order_changed": "Volgorde gewijzigd",
     "panel_width": "Paneelbreedte",

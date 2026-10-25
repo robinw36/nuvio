@@ -233,6 +233,22 @@ Every screenshot above is the same size (dark theme, default background, demo da
 - `custom:nuvio-bars-card`: daily consumption bars from statistics.
 - `custom:nuvio-page`: the full-screen layout itself (top bar, rail, header, card panel).
 
+## Select: icons, title and subtitle
+
+**Select** (`custom:nuvio-select-card`) shows the options of an `input_select` or `select` as buttons (`mode: chips`), a list (`mode: list`) or round icons only (`mode: icons`). Home Assistant has no icons for the options of an `input_select`, so the card keeps them itself: the form lists every option with an icon picker, stored as `icons`. Buttons and the list show an icon only when you chose one. *Icons only* falls back to the icon the integration provides for a `select` (when it has one), then to a suggestion for common words (on, off, auto, eco, comfort, heat, cool, home, away, night and the like, in English, Dutch and Polish), and shows the text when nothing fits, so a button is never empty; the option name is its tooltip and accessible name. `subtitle` replaces the current option under the title, and `hide_name` and `hide_state` hide the title and the subtitle; with both hidden the header is gone. Tapping an option calls `select_option`, so automations on the helper keep working.
+
+```yaml
+type: custom:nuvio-select-card
+entity: input_select.heating
+mode: icons
+hide_name: true
+subtitle: Program
+icons:
+  Home: mdi:home
+  Away: mdi:home-export-outline
+  Frost protection: mdi:snowflake-alert
+```
+
 ## Air, plants and electricity prices (2.15.0)
 
 | Card | What it does | Options |

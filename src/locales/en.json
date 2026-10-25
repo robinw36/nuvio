@@ -1985,7 +1985,8 @@
       "row": "Row",
       "tile": "Tile",
       "vertical": "Vertical",
-      "wi_fi": "Wi-Fi"
+      "wi_fi": "Wi-Fi",
+      "icons_only": "Icons only"
     },
     "monstera_water_me": "Monstera · water me",
     "motion_below_going_up": "motion below · going up",
@@ -2101,7 +2102,12 @@
       "title_with_name": "Title ({name} = first name)",
       "unit": "Unit",
       "warning_threshold": "Warning threshold",
-      "width_ratio": "Width ratio (e.g. 2, 1)"
+      "width_ratio": "Width ratio (e.g. 2, 1)",
+      "subtitle_current_option": "Current option",
+      "hide_title": "Hide title",
+      "hide_subtitle": "Hide subtitle",
+      "icon_per_option": "Icon per option",
+      "icon_per_option_hint": "Home Assistant has no icons for these options, so they are stored in this card. Left empty, Icons only uses a suggestion or the text."
     },
     "order_changed": "Order changed",
     "panel_width": "Panel width",

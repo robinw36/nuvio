@@ -2055,7 +2055,8 @@
       "row": "Wiersz",
       "tile": "Kafel",
       "vertical": "Pionowy",
-      "wi_fi": "Wi-Fi"
+      "wi_fi": "Wi-Fi",
+      "icons_only": "Tylko ikony"
     },
     "monstera_water_me": "Monstera · podlej",
     "motion_below_going_up": "ruch na dole · w górę",
@@ -2171,7 +2172,12 @@
       "title_with_name": "Tytuł ({name} = imię)",
       "unit": "Jednostka",
       "warning_threshold": "Próg ostrzeżenia",
-      "width_ratio": "Proporcje szerokości (np. 2, 1)"
+      "width_ratio": "Proporcje szerokości (np. 2, 1)",
+      "subtitle_current_option": "Bieżąca opcja",
+      "hide_title": "Ukryj tytuł",
+      "hide_subtitle": "Ukryj podtytuł",
+      "icon_per_option": "Ikona dla opcji",
+      "icon_per_option_hint": "Home Assistant nie ma ikon dla tych opcji, więc są zapisane w tej karcie. Puste pole: w trybie Tylko ikony propozycja albo tekst."
     },
     "order_changed": "Zmieniono kolejność",
     "panel_width": "Szerokość panelu",

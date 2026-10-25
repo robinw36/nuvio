@@ -2020,7 +2020,8 @@
       "row": "Ligne",
       "tile": "Tuile",
       "vertical": "Vertical",
-      "wi_fi": "Wi-Fi"
+      "wi_fi": "Wi-Fi",
+      "icons_only": "Icônes seules"
     },
     "monstera_water_me": "Monstera · arrosez-moi",
     "motion_below_going_up": "mouvement en bas · montée",
@@ -2136,7 +2137,12 @@
       "title_with_name": "Titre ({name} = prénom)",
       "unit": "Unité",
       "warning_threshold": "Seuil d’avertissement",
-      "width_ratio": "Proportions de largeur (ex. 2, 1)"
+      "width_ratio": "Proportions de largeur (ex. 2, 1)",
+      "subtitle_current_option": "Option actuelle",
+      "hide_title": "Masquer le titre",
+      "hide_subtitle": "Masquer le sous-titre",
+      "icon_per_option": "Icône par option",
+      "icon_per_option_hint": "Home Assistant n’a pas d’icônes pour ces options, elles sont donc enregistrées dans cette carte. Vide : en mode Icônes seules, une suggestion ou le texte."
     },
     "order_changed": "Ordre modifié",
     "panel_width": "Largeur du panneau",
